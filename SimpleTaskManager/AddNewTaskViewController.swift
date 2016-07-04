@@ -10,10 +10,8 @@ import UIKit
 import CoreData
 
 class AddNewTaskViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate {
-    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-    var updateTaskObj : NSManagedObject!
-    var updateTaskCategoryObj : NSManagedObject!
-    var updateTask = false
+    var task : Task?
+    var categories : [Category] = []
     
     @IBOutlet weak var taskName: UITextField!
     @IBOutlet weak var taskCategory: UIPickerView!
@@ -22,15 +20,15 @@ class AddNewTaskViewController: UIViewController, UIPickerViewDataSource, UIPick
     @IBOutlet weak var taskSaveButton: UIBarButtonItem!
     @IBOutlet weak var taskIsFinishedButton: UIButton!
     
-    func setUpdateState(task: NSManagedObject){
-        updateTaskObj = task
-        updateTask = true
-        updateTaskCategoryObj = updateTaskObj.valueForKey("category") as? NSManagedObject
+    // MARK: Lifecycle
+    func setUpdateState(task: Task!){
+        self.task = task
     }
     
+    // MARK: View Lifecycle
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        appDelegate.loadCategories()
+        categories = CategoryPersistencyManager.sharedInstance.getCategories()
         
         self.taskCategory.dataSource = self
         self.taskCategory.delegate = self
@@ -38,29 +36,29 @@ class AddNewTaskViewController: UIViewController, UIPickerViewDataSource, UIPick
         var selectedCategoryIdx = 0
         
         // Set task values
-        if (updateTask){
+        if let _task = task {
             title = "Update Task"
             
-            taskName.text = updateTaskObj.valueForKey("name") as? String
-            taskDeadline.setDate(updateTaskObj.valueForKey("due") as! NSDate, animated: false)
+            taskName.text = _task.name
+            taskDeadline.setDate(_task.getDueDate(), animated: false)
             
             var enabledNotif = false
-            if(!NSUserDefaults.standardUserDefaults().boolForKey("notifications") || updateTaskObj.valueForKey("is_done") as! Bool){
+            if(!NSUserDefaults.standardUserDefaults().boolForKey("notifications") || _task.is_done){
                 taskEnabledNotifications.enabled = false
             } else {
-                if(updateTaskObj.valueForKey("notification_uuid") as! String != ""){
+                if(_task.notification_uuid != ""){
                     enabledNotif = true
                 }
             }
             taskEnabledNotifications.setOn(enabledNotif, animated: false)
             
-            for (i,c) in appDelegate.categories.enumerate(){
-                if(c === updateTaskCategoryObj){
+            for (i,c) in categories.enumerate(){
+                if(c === _task.category){
                     selectedCategoryIdx = i
                 }
             }
             
-            if(updateTaskObj.valueForKey("is_done") as! Bool){
+            if(_task.is_done){
                 taskIsFinishedButton.setTitle("Task is not Done", forState: .Normal)
             }
             
@@ -88,101 +86,70 @@ class AddNewTaskViewController: UIViewController, UIPickerViewDataSource, UIPick
         // Dispose of any resources that can be recreated.
     }
     
-    //MARK: - pickerView
-    
+    //MARK: pickerView
     func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
         return 1
     }
     
     func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return appDelegate.categories.count
+        return categories.count
     }
     
     func pickerView(pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
         
-        let cat = appDelegate.categories[row]
+        let cat = categories[row]
         let color = UIColor.blackColor()
         
-        return NSAttributedString(string: cat.valueForKey("name") as! String, attributes: [NSForegroundColorAttributeName:color])
+        return NSAttributedString(string: cat.name!, attributes: [NSForegroundColorAttributeName:color])
     }
     
     func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int){
-        let cat = appDelegate.categories[row]
-        let color = Array(COLORS.keys)[cat.valueForKey("color_id") as! Int]
+        let cat = categories[row]
+        let color = Array(Common.COLORS.keys)[cat.getColorID()]
         self.view.backgroundColor = color
     }
     
-    //MARK: - Save task
-    func removeTimeFromDate(date: NSDate) -> NSDate{
-        return NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!.startOfDayForDate(date)
-    }
-    
-    func saveTask(name: String, dueDate: NSDate, notification: Bool, category: NSManagedObject) {
-        let managedContext = appDelegate.managedObjectContext
-        var task = updateTaskObj
+    //MARK: Task Related Methods
+    func saveTask(name: String, dueDate: NSDate, notification: Bool, category: Category) {
+        var _task = task
         
-        if(!updateTask){
-            let entity =  NSEntityDescription.entityForName("Task",
-                                                            inManagedObjectContext:managedContext)
-            task = NSManagedObject(entity: entity!,
-                                       insertIntoManagedObjectContext: managedContext)
-            task.setValue("", forKey: "notification_uuid")
+        if _task != nil {
+            TaskPersistencyManager.sharedInstance.updateTask(_task!, due: dueDate, name: name, category: category)
+        } else {
+            _task = TaskPersistencyManager.sharedInstance.createTask(name, due: dueDate, category: category)
         }
-        
-        task.setValue(name, forKey: "name")
-        task.setValue(removeTimeFromDate(dueDate), forKey: "due")
-        if(!updateTask){
-            task.setValue(false, forKey: "is_done")
-        }
-        task.setValue(category, forKey: "category")
-
         
         //notification
         if(NSUserDefaults.standardUserDefaults().boolForKey("notifications")){
-            if(updateTask){
-                appDelegate.removeExistingNotification(task)
+            if task != nil {
+                NotificationsController.removeExistingNotification(_task!)
             }
             if(notification){
-                appDelegate.scheduleNotification(task)
+                NotificationsController.scheduleNotification(_task!)
             }
-        }
-        
-        do {
-            try managedContext.save()
-
-        } catch let error as NSError  {
-            print("Could not save \(error), \(error.userInfo)")
         }
     }
     
-    //MARK: - Button callbacks
+    // MARK: User Interaction
     @IBAction func saveTask(sender: AnyObject) {
         if (taskName.text!.isEmpty) {
-            let alert = UIAlertView()
-            alert.title = "No task name"
-            alert.message = "Please enter a task name"
-            alert.addButtonWithTitle("Ok")
-            alert.show()
+            let alertController = UIAlertController(title: "No task name", message: "Please enter a task name", preferredStyle: .Alert)
+            let ok = UIAlertAction(title: "OK", style: .Default, handler: { (action) -> Void in
+            })
+            alertController.addAction(ok)
+            self.presentViewController(alertController, animated: true, completion:nil)
             return
         }
         
-        saveTask(taskName.text!, dueDate: taskDeadline.date, notification: taskEnabledNotifications.on, category: appDelegate.categories[taskCategory.selectedRowInComponent(0)])
+        saveTask(taskName.text!, dueDate: taskDeadline.date, notification: taskEnabledNotifications.on, category: categories[taskCategory.selectedRowInComponent(0)])
         
         self.navigationController?.popToRootViewControllerAnimated(true) // return to list view
     }
     
     @IBAction func taskIsFinished(sender: AnyObject) {
-        var isFinished = true
-        if(updateTaskObj.valueForKey("is_done") as! Bool){
-            isFinished = false
-        }
-        updateTaskObj.setValue(isFinished, forKey: "is_done")
-
-        let n: Int! = self.navigationController?.viewControllers.count
-        let taskViewControllerObj = self.navigationController?.viewControllers[n-2] as! TasksViewController
-        taskViewControllerObj.saveUpdatedTask(updateTaskObj)
+        let isFinished = (task!.is_done) ? false : true
         
-        appDelegate.removeExistingNotification(updateTaskObj)
+        TaskPersistencyManager.sharedInstance.updateTask(task!, is_done: isFinished)
         self.navigationController?.popToRootViewControllerAnimated(true)
     }
 }

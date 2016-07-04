@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15F34" minimumToolsVersion="Automatic">
-    <entity name="Category" syncable="YES">
-        <attribute name="color_id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
-        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+    <entity name="Category" representedClassName=".Category" syncable="YES">
+        <attribute name="color_id" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="name" attributeType="String" syncable="YES"/>
         <relationship name="tasks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Task" inverseName="category" inverseEntity="Task" syncable="YES"/>
     </entity>
-    <entity name="Task" syncable="YES">
-        <attribute name="due" optional="YES" attributeType="Date" syncable="YES"/>
-        <attribute name="is_done" optional="YES" attributeType="Boolean" syncable="YES"/>
-        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="notification_uuid" optional="YES" attributeType="String" syncable="YES"/>
+    <entity name="Task" representedClassName=".Task" syncable="YES">
+        <attribute name="due" attributeType="Date" syncable="YES"/>
+        <attribute name="is_done" attributeType="Boolean" syncable="YES"/>
+        <attribute name="name" attributeType="String" syncable="YES"/>
+        <attribute name="notification_uuid" attributeType="String" syncable="YES"/>
         <relationship name="category" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="tasks" inverseEntity="Category" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Category" positionX="-378" positionY="-102" width="128" height="88"/>
+        <element name="Category" positionX="-378" positionY="-102" width="128" height="90"/>
         <element name="Task" positionX="-36" positionY="27" width="128" height="120"/>
     </elements>
 </model>

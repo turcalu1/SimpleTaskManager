@@ -13,16 +13,15 @@ class SettingsAddCategoryViewController: UIViewController, UIPickerViewDataSourc
     @IBOutlet weak var pickerView: UIPickerView!
     @IBOutlet weak var categoryName: UITextField!
     
-    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    var categories : [Category] = []
+    var category : Category?
     
-    var updateCategoryObj : NSManagedObject!
-    var updateCategory = false
-    
-    func setUpdateState(category: NSManagedObject){
-        updateCategoryObj = category
-        updateCategory = true
+    // MARK: Lifecycle
+    func setUpdateState(category: Category){
+        self.category = category
     }
     
+    // MARK: View Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         self.pickerView.dataSource = self
@@ -32,16 +31,17 @@ class SettingsAddCategoryViewController: UIViewController, UIPickerViewDataSourc
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
+        categories = CategoryPersistencyManager.sharedInstance.getCategories()
         var selectedColorIdx = 0
         
         // Set the existing category data
-        if (updateCategory){
+        if let _category = category {
             title = "Update Category"
             
-            categoryName.text = updateCategoryObj.valueForKey("name") as? String
-            for c in appDelegate.categories{
-                if(c === updateCategoryObj){
-                    selectedColorIdx = c.valueForKey("color_id") as! Int
+            categoryName.text = _category.name
+            for c in categories{
+                if(c === _category){
+                    selectedColorIdx = c.getColorID()
                     pickerView.selectRow(selectedColorIdx, inComponent: 0, animated: false)
                 }
             }
@@ -57,59 +57,40 @@ class SettingsAddCategoryViewController: UIViewController, UIPickerViewDataSourc
         // Dispose of any resources that can be recreated.
     }
     
-    // MARK: - pickerView
+    // MARK: pickerView
     func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
         return 1
     }
     
     func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return COLORS.count
+        return Common.COLORS.count
     }
     
     func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return Array(COLORS.values)[row]
+        return Array(Common.COLORS.values)[row]
     }
     
     func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int){
-        self.view.backgroundColor = Array(COLORS.keys)[row]
+        self.view.backgroundColor = Array(Common.COLORS.keys)[row]
     }
     
-    // MARK: - Button callbacks
+    // MARK: User Interaction
     @IBAction func SaveNewCategory(sender: AnyObject) {
         if (categoryName.text!.isEmpty) {
-            let alert = UIAlertView()
-            alert.title = "No category name"
-            alert.message = "Please enter a category name"
-            alert.addButtonWithTitle("Ok")
-            alert.show()
+            let alertController = UIAlertController(title: "No category name", message: "Please enter a category name", preferredStyle: .Alert)
+            let ok = UIAlertAction(title: "OK", style: .Default, handler: { (action) -> Void in
+            })
+            alertController.addAction(ok)
+            self.presentViewController(alertController, animated: true, completion:nil)
             return
         }
 
-        saveCategory(categoryName.text!, colorID: pickerView.selectedRowInComponent(0))
+        if let _category = category {
+            CategoryPersistencyManager.sharedInstance.updateCategory(_category, color_id: pickerView.selectedRowInComponent(0), name: categoryName.text!)
+        } else {
+            CategoryPersistencyManager.sharedInstance.createCategory(pickerView.selectedRowInComponent(0), name: categoryName.text!)
+        }
+        
         self.navigationController?.popViewControllerAnimated(true)
-    }
-    
-    func saveCategory(name: String, colorID: Int) {
-        let managedContext = appDelegate.managedObjectContext
-        
-        var category = updateCategoryObj
-
-        if(!updateCategory){
-            // create new category
-            let entity =  NSEntityDescription.entityForName("Category",
-                                                            inManagedObjectContext:managedContext)
-            
-            category = NSManagedObject(entity: entity!,
-                                           insertIntoManagedObjectContext: managedContext)
-        }
-        
-        category.setValue(name, forKey: "name")
-        category.setValue(colorID, forKey: "color_id")
-        
-        do {
-            try managedContext.save()
-        } catch let error as NSError  {
-            print("Could not save \(error), \(error.userInfo)")
-        }
     }
 }

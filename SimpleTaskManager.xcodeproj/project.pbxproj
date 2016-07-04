@@ -7,6 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C31FEC8F1D29B0A200EC066B /* TaskPersistencyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31FEC8E1D29B0A200EC066B /* TaskPersistencyManager.swift */; };
+		C31FEC941D29CDAE00EC066B /* Task+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31FEC901D29CDAE00EC066B /* Task+CoreDataProperties.swift */; };
+		C31FEC951D29CDAE00EC066B /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31FEC911D29CDAE00EC066B /* Task.swift */; };
+		C31FEC961D29CDAE00EC066B /* Category+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31FEC921D29CDAE00EC066B /* Category+CoreDataProperties.swift */; };
+		C31FEC971D29CDAE00EC066B /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31FEC931D29CDAE00EC066B /* Category.swift */; };
+		C31FEC991D29D15F00EC066B /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31FEC981D29D15F00EC066B /* DataController.swift */; };
+		C31FEC9B1D29E02B00EC066B /* CategoryPersistencyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31FEC9A1D29E02B00EC066B /* CategoryPersistencyManager.swift */; };
+		C31FEC9F1D2A707400EC066B /* NotificationsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31FEC9E1D2A707400EC066B /* NotificationsController.swift */; };
+		C31FECA11D2A737900EC066B /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31FECA01D2A737900EC066B /* Common.swift */; };
 		C32DB20C1D1F17220005BCA9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32DB20B1D1F17220005BCA9 /* AppDelegate.swift */; };
 		C32DB2111D1F17220005BCA9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C32DB20F1D1F17220005BCA9 /* Main.storyboard */; };
 		C32DB2141D1F17220005BCA9 /* SimpleTaskManager.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C32DB2121D1F17220005BCA9 /* SimpleTaskManager.xcdatamodeld */; };
@@ -40,6 +49,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C31FEC8E1D29B0A200EC066B /* TaskPersistencyManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskPersistencyManager.swift; sourceTree = "<group>"; };
+		C31FEC901D29CDAE00EC066B /* Task+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Task+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		C31FEC911D29CDAE00EC066B /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
+		C31FEC921D29CDAE00EC066B /* Category+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Category+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		C31FEC931D29CDAE00EC066B /* Category.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
+		C31FEC981D29D15F00EC066B /* DataController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
+		C31FEC9A1D29E02B00EC066B /* CategoryPersistencyManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CategoryPersistencyManager.swift; sourceTree = "<group>"; };
+		C31FEC9E1D2A707400EC066B /* NotificationsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationsController.swift; sourceTree = "<group>"; };
+		C31FECA01D2A737900EC066B /* Common.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
 		C32DB2081D1F17220005BCA9 /* SimpleTaskManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleTaskManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C32DB20B1D1F17220005BCA9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C32DB2101D1F17220005BCA9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -86,6 +104,46 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C31FEC741D29A99C00EC066B /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				C31FEC8E1D29B0A200EC066B /* TaskPersistencyManager.swift */,
+				C31FEC9A1D29E02B00EC066B /* CategoryPersistencyManager.swift */,
+			);
+			name = Store;
+			sourceTree = "<group>";
+		};
+		C31FEC751D29A9C200EC066B /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				C31FEC901D29CDAE00EC066B /* Task+CoreDataProperties.swift */,
+				C31FEC911D29CDAE00EC066B /* Task.swift */,
+				C31FEC921D29CDAE00EC066B /* Category+CoreDataProperties.swift */,
+				C31FEC931D29CDAE00EC066B /* Category.swift */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		C31FEC761D29A9D200EC066B /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				C3C390BB1D2077CD009E0079 /* TasksViewController.swift */,
+				C32DB23C1D1F17550005BCA9 /* SettingsViewController.swift */,
+				C32DB23E1D1F3A960005BCA9 /* SettingsCategoriesTableViewController.swift */,
+				C32DB2421D1FD23F0005BCA9 /* SettingsAddCategoryViewController.swift */,
+				C32DB2441D200BE60005BCA9 /* AddNewTaskViewController.swift */,
+				C31FEC9E1D2A707400EC066B /* NotificationsController.swift */,
+			);
+			name = Controller;
+			sourceTree = "<group>";
+		};
+		C31FEC771D29A9D800EC066B /* View */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = View;
+			sourceTree = "<group>";
+		};
 		C32DB1FF1D1F17220005BCA9 = {
 			isa = PBXGroup;
 			children = (
@@ -109,18 +167,19 @@
 		C32DB20A1D1F17220005BCA9 /* SimpleTaskManager */ = {
 			isa = PBXGroup;
 			children = (
-				C3C390BB1D2077CD009E0079 /* TasksViewController.swift */,
+				C31FEC771D29A9D800EC066B /* View */,
+				C31FEC761D29A9D200EC066B /* Controller */,
+				C31FEC751D29A9C200EC066B /* Model */,
+				C31FEC741D29A99C00EC066B /* Store */,
 				C3C390C11D209678009E0079 /* Extensions.swift */,
 				C32DB20B1D1F17220005BCA9 /* AppDelegate.swift */,
+				C31FECA01D2A737900EC066B /* Common.swift */,
 				C32DB20F1D1F17220005BCA9 /* Main.storyboard */,
 				C32DB2151D1F17220005BCA9 /* Assets.xcassets */,
 				C32DB2171D1F17220005BCA9 /* LaunchScreen.storyboard */,
 				C32DB21A1D1F17220005BCA9 /* Info.plist */,
 				C32DB2121D1F17220005BCA9 /* SimpleTaskManager.xcdatamodeld */,
-				C32DB23C1D1F17550005BCA9 /* SettingsViewController.swift */,
-				C32DB23E1D1F3A960005BCA9 /* SettingsCategoriesTableViewController.swift */,
-				C32DB2421D1FD23F0005BCA9 /* SettingsAddCategoryViewController.swift */,
-				C32DB2441D200BE60005BCA9 /* AddNewTaskViewController.swift */,
+				C31FEC981D29D15F00EC066B /* DataController.swift */,
 			);
 			path = SimpleTaskManager;
 			sourceTree = "<group>";
@@ -277,10 +336,19 @@
 				C3C390C21D209678009E0079 /* Extensions.swift in Sources */,
 				C32DB23F1D1F3A960005BCA9 /* SettingsCategoriesTableViewController.swift in Sources */,
 				C32DB20C1D1F17220005BCA9 /* AppDelegate.swift in Sources */,
+				C31FEC9F1D2A707400EC066B /* NotificationsController.swift in Sources */,
+				C31FECA11D2A737900EC066B /* Common.swift in Sources */,
+				C31FEC8F1D29B0A200EC066B /* TaskPersistencyManager.swift in Sources */,
+				C31FEC951D29CDAE00EC066B /* Task.swift in Sources */,
 				C32DB2431D1FD23F0005BCA9 /* SettingsAddCategoryViewController.swift in Sources */,
 				C3C390BC1D2077CD009E0079 /* TasksViewController.swift in Sources */,
+				C31FEC991D29D15F00EC066B /* DataController.swift in Sources */,
+				C31FEC961D29CDAE00EC066B /* Category+CoreDataProperties.swift in Sources */,
 				C32DB2141D1F17220005BCA9 /* SimpleTaskManager.xcdatamodeld in Sources */,
+				C31FEC971D29CDAE00EC066B /* Category.swift in Sources */,
+				C31FEC9B1D29E02B00EC066B /* CategoryPersistencyManager.swift in Sources */,
 				C32DB2451D200BE60005BCA9 /* AddNewTaskViewController.swift in Sources */,
+				C31FEC941D29CDAE00EC066B /* Task+CoreDataProperties.swift in Sources */,
 				C32DB23D1D1F17550005BCA9 /* SettingsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

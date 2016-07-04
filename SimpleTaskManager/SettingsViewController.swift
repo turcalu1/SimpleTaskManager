@@ -9,12 +9,12 @@
 import UIKit
 
 class SettingsViewController: UITableViewController {
-    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-    var standardUserDefaults = NSUserDefaults.standardUserDefaults()
+    let standardUserDefaults = NSUserDefaults.standardUserDefaults()
     
     @IBOutlet weak var notificationsSwitch: UISwitch!
     @IBOutlet weak var tasksOrderSegmentedControl: UISegmentedControl!
 
+    // MARK: View Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -32,13 +32,13 @@ class SettingsViewController: UITableViewController {
         super.didReceiveMemoryWarning()
     }
     
-    // MARK: - Button callbacks
+    // MARK: User Interaction
     @IBAction func notificationsSettingChanged(sender: AnyObject) {
         if(notificationsSwitch.on){
             let notificationSettings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: nil)
             UIApplication.sharedApplication().registerUserNotificationSettings(notificationSettings)
         } else {
-            appDelegate.removeAllNotifications()
+            NotificationsController.removeAllNotifications()
         }
         
         standardUserDefaults.setBool(notificationsSwitch.on, forKey: "notifications")

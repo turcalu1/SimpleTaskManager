@@ -11,14 +11,14 @@ import CoreData
 
 class TasksViewController: UITableViewController {
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-    var tasks = [NSManagedObject]()
+    var tasks: [Task] = []
     
+    // MARK: View Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         let swipe = UISwipeGestureRecognizer(target: self, action: #selector(TasksViewController.swipeRight(_:)))
         swipe.direction = .Right
         self.tableView.addGestureRecognizer(swipe)
-        // Do any additional setup after loading the view, typically from a nib.
     }
 
     override func viewWillAppear(animated: Bool) {
@@ -29,7 +29,10 @@ class TasksViewController: UITableViewController {
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    }
+    
+    func loadTasks(){
+        tasks = TaskPersistencyManager.sharedInstance.getTasks(NSUserDefaults.standardUserDefaults().boolForKey("orderTasksByDate") ? true : false)
     }
     
     // MARK: - Table view
@@ -46,20 +49,19 @@ class TasksViewController: UITableViewController {
         let task = tasks[indexPath.row]
         
         var attributedTitle = [String : AnyObject]()
-        if task.valueForKey("is_done") as! Bool {
+        if task.is_done {
             attributedTitle = [NSStrikethroughStyleAttributeName: NSUnderlineStyle.StyleSingle.rawValue]
         }
-        cell.textLabel!.attributedText = NSAttributedString(string: task.valueForKey("name") as! String, attributes: attributedTitle)
+        cell.textLabel!.attributedText = NSAttributedString(string: task.name!, attributes: attributedTitle)
         
-        let colorID = (task.valueForKey("category") as! NSManagedObject).valueForKey("color_id") as! Int
-        cell.backgroundColor = Array(COLORS.keys)[colorID]
+        cell.backgroundColor = Array(Common.COLORS.keys)[ task.category!.getColorID() ]
         
         let dayTimePeriodFormatter = NSDateFormatter()
         dayTimePeriodFormatter.dateFormat = "EEEE, MMM d, yyyy"
-        var dueDate = dayTimePeriodFormatter.stringFromDate(task.valueForKey("due") as! NSDate)
+        var dueDate = dayTimePeriodFormatter.stringFromDate(task.getDueDate())
         
 //        var attributedSubtitle = [String : AnyObject]()
-        if NSDate() > task.valueForKey("due") as! NSDate {
+        if NSDate() > task.getDueDate() {
             dueDate = "[Soon] " + dueDate
 //            attributedSubtitle = [NSForegroundColorAttributeName : UIColor.darkGrayColor()]
 //            attributedSubtitle = [NSFontAttributeName : UIFont.boldSystemFontOfSize(11)]
@@ -75,76 +77,33 @@ class TasksViewController: UITableViewController {
         addNewTaskViewControllerObj.setUpdateState(tasks[indexPath.row])
         self.navigationController?.pushViewController(addNewTaskViewControllerObj, animated: true)
     }
-    
-    
-    func loadTasks(){
-        let standardUserDefaults = NSUserDefaults.standardUserDefaults()
-        let managedContext = appDelegate.managedObjectContext
-        let fetchRequest = NSFetchRequest(entityName: "Task")
-        
-        if(standardUserDefaults.boolForKey("orderTasksByDate")){
-            fetchRequest.sortDescriptors = [NSSortDescriptor(key: "due", ascending: true)]
-        } else {
-            fetchRequest.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
-        }
-        
-        do {
-            let results =
-                try managedContext.executeFetchRequest(fetchRequest)
-            tasks = results as! [NSManagedObject]
-        } catch let error as NSError {
-            print("Could not fetch \(error), \(error.userInfo)")
-        }
-    }
 
-    // MARK: - Remove task
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+    // MARK: User Interaction
+    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) { //deleted task
         if editingStyle == .Delete {
-            removeTask(tasks[indexPath.row])
+            TaskPersistencyManager.sharedInstance.removeTask(tasks[indexPath.row])
             tasks.removeAtIndex(indexPath.row)
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
         }
     }
     
-    func removeTask(task: NSManagedObject){
-        let managedContext = appDelegate.managedObjectContext
-        managedContext.deleteObject(task)
-        
-        do {
-            try managedContext.save()
-        } catch let error as NSError {
-            print("Unable to remove task \(error), \(error.userInfo)")
-        }
-    }
-    
-    // MARK: - Completed Task
-    func swipeRight(recognizer: UIGestureRecognizer) {
+    func swipeRight(recognizer: UIGestureRecognizer) { //task is done
         if recognizer.state == UIGestureRecognizerState.Ended {
             let swipeLocation = recognizer.locationInView(self.tableView)
             if let swipedIndexPath = tableView.indexPathForRowAtPoint(swipeLocation) {
                 if (self.tableView.cellForRowAtIndexPath(swipedIndexPath) != nil) {
 
-                    let task = tasks[swipedIndexPath.row] 
-                    if task.valueForKey("is_done") as! Bool {
-                        task.setValue(false, forKey: "is_done")
-                    } else {
-                        task.setValue(true, forKey: "is_done")
-                        appDelegate.removeExistingNotification(task)
+                    let task = tasks[swipedIndexPath.row]
+                    var is_done = false
+                    if !task.is_done {
+                        is_done = true
+                        NotificationsController.removeExistingNotification(task)
                     }
-
-                    saveUpdatedTask(task)
+                    
+                    TaskPersistencyManager.sharedInstance.updateTask(task, is_done: is_done)
                     self.tableView.reloadData()
                 }
             }
-        }
-    }
-    
-    func saveUpdatedTask(task: NSManagedObject){
-        // save your changes
-        do {
-            try task.managedObjectContext?.save()
-        } catch let error as NSError {
-            print("Unable to update task \(error), \(error.userInfo)")
         }
     }
 }

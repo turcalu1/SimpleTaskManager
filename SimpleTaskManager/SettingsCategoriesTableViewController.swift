@@ -10,8 +10,9 @@ import UIKit
 import CoreData
 
 class SettingsCategoriesTableViewController: UITableViewController {
-    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    var categories : [Category] = []
     
+    // MARK: View Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -24,7 +25,7 @@ class SettingsCategoriesTableViewController: UITableViewController {
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        appDelegate.loadCategories()
+        categories = CategoryPersistencyManager.sharedInstance.getCategories()
         tableView.reloadData()
     }
 
@@ -34,7 +35,6 @@ class SettingsCategoriesTableViewController: UITableViewController {
     }
 
     // MARK: - Table view
-
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
         return 1
@@ -42,18 +42,17 @@ class SettingsCategoriesTableViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return appDelegate.categories.count
+        return categories.count
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
 
-        let cat = appDelegate.categories[indexPath.row]
+        let cat = categories[indexPath.row]
 
-        cell.textLabel!.text =
-            cat.valueForKey("name") as? String
+        cell.textLabel!.text = cat.name
         
-        cell.backgroundColor = Array(COLORS.keys)[(cat.valueForKey("color_id") as! Int)]
+        cell.backgroundColor = Array(Common.COLORS.keys)[(cat.getColorID())]
         
         if cell.backgroundColor === UIColor.blackColor() {
             cell.textLabel?.textColor = UIColor.whiteColor()
@@ -64,7 +63,7 @@ class SettingsCategoriesTableViewController: UITableViewController {
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let settingsAddCategoryViewControllerObj = self.storyboard?.instantiateViewControllerWithIdentifier("AddCategory") as! SettingsAddCategoryViewController
-        settingsAddCategoryViewControllerObj.setUpdateState(appDelegate.categories[indexPath.row])
+        settingsAddCategoryViewControllerObj.setUpdateState(categories[indexPath.row])
         self.navigationController?.pushViewController(settingsAddCategoryViewControllerObj, animated: true)
     }
 
