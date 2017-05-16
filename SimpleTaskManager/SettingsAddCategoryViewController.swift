@@ -17,7 +17,7 @@ class SettingsAddCategoryViewController: UIViewController, UIPickerViewDataSourc
     var category : Category?
     
     // MARK: Lifecycle
-    func setUpdateState(category: Category){
+    func setUpdateState(_ category: Category){
         self.category = category
     }
     
@@ -28,7 +28,7 @@ class SettingsAddCategoryViewController: UIViewController, UIPickerViewDataSourc
         self.pickerView.delegate = self
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         categories = CategoryPersistencyManager.sharedInstance.getCategories()
@@ -58,39 +58,39 @@ class SettingsAddCategoryViewController: UIViewController, UIPickerViewDataSourc
     }
     
     // MARK: pickerView
-    func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
     
-    func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         return Common.COLORS.count
     }
     
-    func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         return Array(Common.COLORS.values)[row]
     }
     
-    func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int){
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int){
         self.view.backgroundColor = Array(Common.COLORS.keys)[row]
     }
     
     // MARK: User Interaction
-    @IBAction func SaveNewCategory(sender: AnyObject) {
+    @IBAction func SaveNewCategory(_ sender: AnyObject) {
         if (categoryName.text!.isEmpty) {
-            let alertController = UIAlertController(title: "No category name", message: "Please enter a category name", preferredStyle: .Alert)
-            let ok = UIAlertAction(title: "OK", style: .Default, handler: { (action) -> Void in
+            let alertController = UIAlertController(title: "No category name", message: "Please enter a category name", preferredStyle: .alert)
+            let ok = UIAlertAction(title: "OK", style: .default, handler: { (action) -> Void in
             })
             alertController.addAction(ok)
-            self.presentViewController(alertController, animated: true, completion:nil)
+            self.present(alertController, animated: true, completion:nil)
             return
         }
 
         if let _category = category {
-            CategoryPersistencyManager.sharedInstance.updateCategory(_category, color_id: pickerView.selectedRowInComponent(0), name: categoryName.text!)
+            CategoryPersistencyManager.sharedInstance.updateCategory(_category, color_id: pickerView.selectedRow(inComponent: 0), name: categoryName.text!)
         } else {
-            CategoryPersistencyManager.sharedInstance.createCategory(pickerView.selectedRowInComponent(0), name: categoryName.text!)
+            _ = CategoryPersistencyManager.sharedInstance.createCategory(pickerView.selectedRow(inComponent: 0), name: categoryName.text!)
         }
         
-        self.navigationController?.popViewControllerAnimated(true)
+        _ = self.navigationController?.popViewController(animated: true)
     }
 }

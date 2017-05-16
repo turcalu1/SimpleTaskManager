@@ -14,7 +14,7 @@ import CoreData
 
 extension Task {
 
-    @NSManaged var due: NSTimeInterval
+    @NSManaged var due: TimeInterval
     @NSManaged var is_done: Bool
     @NSManaged var name: String?
     @NSManaged var notification_uuid: String?

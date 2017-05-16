@@ -19,13 +19,13 @@ class TaskPersistencyManager: NSObject {
         return Singleton.instance
     }
     
-    func getTasks(orderByDue: Bool=false) -> [Task]{
-        let fetchRequest = NSFetchRequest(entityName: "Task")
+    func getTasks(_ orderByDue: Bool=false) -> [Task]{
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Task")
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: orderByDue ? "due" : "name", ascending: true)]
         
         do {
             let results =
-                try moc.executeFetchRequest(fetchRequest)
+                try moc.fetch(fetchRequest)
             return results as! [Task]
         } catch let error as NSError {
             print("Could not fetch \(error), \(error.userInfo)")
@@ -34,11 +34,11 @@ class TaskPersistencyManager: NSObject {
         return []
     }
     
-    func createTask(name: String, due: NSDate, category: Category) -> Task{
-        let entity =  NSEntityDescription.entityForName("Task",
-                                                        inManagedObjectContext:moc)
+    func createTask(_ name: String, due: Date, category: Category) -> Task{
+        let entity =  NSEntityDescription.entity(forEntityName: "Task",
+                                                        in:moc)
         let task = NSManagedObject(entity: entity!,
-                                   insertIntoManagedObjectContext: moc) as! Task
+                                   insertInto: moc) as! Task
         
         task.notification_uuid = ""
         task.name = name
@@ -50,8 +50,8 @@ class TaskPersistencyManager: NSObject {
         return task
     }
     
-    func updateTask(task: Task,
-                    due: NSDate?=nil,
+    func updateTask(_ task: Task,
+                    due: Date?=nil,
                     is_done: Bool?=nil,
                     name: String?=nil,
                     notification_uuid: String?=nil,
@@ -79,8 +79,8 @@ class TaskPersistencyManager: NSObject {
         DataController.sharedInstance.saveContext()
     }
     
-    func removeTask(task: Task){
-        moc.deleteObject(task)
+    func removeTask(_ task: Task){
+        moc.delete(task)
         DataController.sharedInstance.saveContext()
     }
 }

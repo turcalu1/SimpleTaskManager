@@ -9,12 +9,12 @@
 import UIKit
 
 class Common: NSObject {
-    static var COLORS = [UIColor.grayColor()  : "Gray",
-                  UIColor.greenColor() : "Green",
-                  UIColor.cyanColor() : "Cyan",
-                  UIColor.yellowColor() : "Yellow",
-                  UIColor.orangeColor() : "Orange",
-                  UIColor.brownColor() : "Brown"]
+    static var COLORS = [UIColor.gray  : "Gray",
+                  UIColor.green : "Green",
+                  UIColor.cyan : "Cyan",
+                  UIColor.yellow : "Yellow",
+                  UIColor.orange : "Orange",
+                  UIColor.brown : "Brown"]
     
     static var DEFAULT_CATEGORIES = [ "School", "Work", "Wife", "Kids" ]
     
@@ -23,13 +23,13 @@ class Common: NSObject {
                                 "Tell Mona a great joke",
                                 "Help Jimmy with his homework" ]
     
-    class func addDayAndHourToDate(day: Int, hour: Int, date: NSDate) -> NSDate {
-        let dateComponents: NSDateComponents = NSDateComponents()
+    class func addDayAndHourToDate(_ day: Int, hour: Int, date: Date) -> Date {
+        var dateComponents: DateComponents = DateComponents()
         dateComponents.day = day
         dateComponents.hour = hour
         
-        let gregorianCalendar: NSCalendar = NSCalendar(identifier: NSCalendarIdentifierGregorian)!
-        let newDate: NSDate = gregorianCalendar.dateByAddingComponents(dateComponents, toDate: date, options:NSCalendarOptions(rawValue: 0))!
+        let gregorianCalendar: Calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+        let newDate: Date = gregorianCalendar.date(byAdding: dateComponents, to: date)!
         
         return newDate
     }

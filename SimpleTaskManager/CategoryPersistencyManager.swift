@@ -20,11 +20,11 @@ class CategoryPersistencyManager: NSObject {
     }
     
     func getCategories() -> [Category]{
-        let fetchRequest = NSFetchRequest(entityName: "Category")
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Category")
         
         do {
             let results =
-                try moc.executeFetchRequest(fetchRequest)
+                try moc.fetch(fetchRequest)
             return results as! [Category]
         } catch let error as NSError {
             print("Could not fetch \(error), \(error.userInfo)")
@@ -33,11 +33,11 @@ class CategoryPersistencyManager: NSObject {
         return []
     }
     
-    func createCategory(color_id: Int, name: String) -> Category{
-        let entity =  NSEntityDescription.entityForName("Category",
-                                                        inManagedObjectContext:moc)
+    func createCategory(_ color_id: Int, name: String) -> Category{
+        let entity =  NSEntityDescription.entity(forEntityName: "Category",
+                                                        in:moc)
         let category = NSManagedObject(entity: entity!,
-                                   insertIntoManagedObjectContext: moc) as! Category
+                                   insertInto: moc) as! Category
         
         category.color_id = Int16(color_id)
         category.name = name
@@ -46,7 +46,7 @@ class CategoryPersistencyManager: NSObject {
         return category
     }
     
-    func updateCategory(category: Category,
+    func updateCategory(_ category: Category,
                         color_id: Int?=nil,
                         name: String?=nil){
         if let _color_id = color_id {
@@ -60,8 +60,8 @@ class CategoryPersistencyManager: NSObject {
         DataController.sharedInstance.saveContext()
     }
     
-    func removeCategory(category: Task){
-        moc.deleteObject(category)
+    func removeCategory(_ category: Task){
+        moc.delete(category)
         DataController.sharedInstance.saveContext()
     }
 }

@@ -9,43 +9,44 @@
 import UIKit
 
 class NotificationsController: NSObject {
-    class func scheduleNotification(task: Task){
-        if let settings = UIApplication.sharedApplication().currentUserNotificationSettings()
+    class func scheduleNotification(_ task: Task){
+        if let settings = UIApplication.shared.currentUserNotificationSettings
         {
-            if !settings.types.contains([.Alert, .Badge, .Sound])
+            if !settings.types.contains([.alert, .badge, .sound])
             {
                 //notifications are not allowed
                 NotificationsController.removeAllNotifications()
-                NSUserDefaults.standardUserDefaults().setBool(false, forKey: "notifications")
+                UserDefaults.standard.set(false, forKey: "notifications")
                 return
             }
         }
         
-        let fireDate = Common.addDayAndHourToDate(0, hour: 8, date: task.valueForKey("due") as! NSDate)
+        let fireDate = Common.addDayAndHourToDate(0, hour: 8, date: task.value(forKey: "due") as! Date)
         
-        if(NSDate() > fireDate){
-            return
+//      if(Date() > fireDate){
+        if Date().compare(fireDate) == .orderedAscending  {
+                return
         }
         
         let notification = UILocalNotification()
         notification.fireDate = fireDate
         notification.alertBody = "Due today: " + task.name!
         notification.soundName = UILocalNotificationDefaultSoundName
-        notification.userInfo = ["uuid": NSUUID().UUIDString]
-        UIApplication.sharedApplication().scheduleLocalNotification(notification)
+        notification.userInfo = ["uuid": UUID().uuidString]
+        UIApplication.shared.scheduleLocalNotification(notification)
         
         TaskPersistencyManager.sharedInstance.updateTask(task, notification_uuid: task.name)
     }
     
-    class func removeExistingNotification(task: Task){
+    class func removeExistingNotification(_ task: Task){
         if( task.notification_uuid == "" ){
             return
         }
         
-        let notifications = UIApplication.sharedApplication().scheduledLocalNotifications!
+        let notifications = UIApplication.shared.scheduledLocalNotifications!
         for notification in notifications {
             if( notification.userInfo!["uuid"] as? String == task.notification_uuid ){
-                UIApplication.sharedApplication().cancelLocalNotification(notification)
+                UIApplication.shared.cancelLocalNotification(notification)
             }
         }
         
@@ -60,6 +61,6 @@ class NotificationsController: NSObject {
         }
         
         //remove notifs
-        UIApplication.sharedApplication().cancelAllLocalNotifications()
+        UIApplication.shared.cancelAllLocalNotifications()
     }
 }

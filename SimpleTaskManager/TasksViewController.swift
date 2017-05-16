@@ -10,18 +10,18 @@ import UIKit
 import CoreData
 
 class TasksViewController: UITableViewController {
-    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var tasks: [Task] = []
     
     // MARK: View Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         let swipe = UISwipeGestureRecognizer(target: self, action: #selector(TasksViewController.swipeRight(_:)))
-        swipe.direction = .Right
+        swipe.direction = .right
         self.tableView.addGestureRecognizer(swipe)
     }
 
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadTasks()
         self.tableView.reloadData()
@@ -32,66 +32,65 @@ class TasksViewController: UITableViewController {
     }
     
     func loadTasks(){
-        tasks = TaskPersistencyManager.sharedInstance.getTasks(NSUserDefaults.standardUserDefaults().boolForKey("orderTasksByDate") ? true : false)
+        tasks = TaskPersistencyManager.sharedInstance.getTasks(UserDefaults.standard.bool(forKey: "orderTasksByDate") ? true : false)
     }
     
     // MARK: - Table view
-    override func tableView(tableView: UITableView,
+    override func tableView(_ tableView: UITableView,
                    numberOfRowsInSection section: Int) -> Int {
         return tasks.count
     }
     
-    override func tableView(tableView: UITableView,
-                   cellForRowAtIndexPath
-        indexPath: NSIndexPath) -> UITableViewCell {
+    override func tableView(_ tableView: UITableView,
+                   cellForRowAt
+        indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         let task = tasks[indexPath.row]
         
         var attributedTitle = [String : AnyObject]()
         if task.is_done {
-            attributedTitle = [NSStrikethroughStyleAttributeName: NSUnderlineStyle.StyleSingle.rawValue]
+            attributedTitle = [NSStrikethroughStyleAttributeName: NSUnderlineStyle.styleSingle.rawValue as AnyObject]
         }
         cell.textLabel!.attributedText = NSAttributedString(string: task.name!, attributes: attributedTitle)
         
         cell.backgroundColor = Array(Common.COLORS.keys)[ task.category!.getColorID() ]
         
-        let dayTimePeriodFormatter = NSDateFormatter()
+        let dayTimePeriodFormatter = DateFormatter()
         dayTimePeriodFormatter.dateFormat = "EEEE, MMM d, yyyy"
-        var dueDate = dayTimePeriodFormatter.stringFromDate(task.getDueDate())
+        let dueDate = dayTimePeriodFormatter.string(from: task.getDueDate() as Date)
         
-//        var attributedSubtitle = [String : AnyObject]()
-        if NSDate() > task.getDueDate() {
-            dueDate = "[Soon] " + dueDate
-//            attributedSubtitle = [NSForegroundColorAttributeName : UIColor.darkGrayColor()]
-//            attributedSubtitle = [NSFontAttributeName : UIFont.boldSystemFontOfSize(11)]
+        var attributedSubtitle = [String : AnyObject]()
+        if Date().addingTimeInterval(60*60*24*15).compare(task.getDueDate() as Date) == .orderedDescending  {
+            attributedSubtitle = [
+                                  //NSForegroundColorAttributeName : UIColor.red,
+                                  NSFontAttributeName : UIFont.boldSystemFont(ofSize: 13)]
         }
-//        cell.detailTextLabel!.attributedText = NSAttributedString(string: dueDate, attributes: attributedSubtitle)
-        cell.detailTextLabel!.text = dueDate
+        cell.detailTextLabel!.attributedText = NSAttributedString(string: dueDate, attributes: attributedSubtitle)
         
         return cell
     }
     
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        let addNewTaskViewControllerObj = self.storyboard?.instantiateViewControllerWithIdentifier("AddTask") as! AddNewTaskViewController
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let addNewTaskViewControllerObj = self.storyboard?.instantiateViewController(withIdentifier: "AddTask") as! AddNewTaskViewController
         addNewTaskViewControllerObj.setUpdateState(tasks[indexPath.row])
         self.navigationController?.pushViewController(addNewTaskViewControllerObj, animated: true)
     }
 
     // MARK: User Interaction
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) { //deleted task
-        if editingStyle == .Delete {
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) { //deleted task
+        if editingStyle == .delete {
             TaskPersistencyManager.sharedInstance.removeTask(tasks[indexPath.row])
-            tasks.removeAtIndex(indexPath.row)
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+            tasks.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
         }
     }
     
-    func swipeRight(recognizer: UIGestureRecognizer) { //task is done
-        if recognizer.state == UIGestureRecognizerState.Ended {
-            let swipeLocation = recognizer.locationInView(self.tableView)
-            if let swipedIndexPath = tableView.indexPathForRowAtPoint(swipeLocation) {
-                if (self.tableView.cellForRowAtIndexPath(swipedIndexPath) != nil) {
+    func swipeRight(_ recognizer: UIGestureRecognizer) { //task is done
+        if recognizer.state == UIGestureRecognizerState.ended {
+            let swipeLocation = recognizer.location(in: self.tableView)
+            if let swipedIndexPath = tableView.indexPathForRow(at: swipeLocation) {
+                if (self.tableView.cellForRow(at: swipedIndexPath) != nil) {
 
                     let task = tasks[swipedIndexPath.row]
                     var is_done = false

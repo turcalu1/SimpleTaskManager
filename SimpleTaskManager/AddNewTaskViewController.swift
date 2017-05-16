@@ -21,12 +21,12 @@ class AddNewTaskViewController: UIViewController, UIPickerViewDataSource, UIPick
     @IBOutlet weak var taskIsFinishedButton: UIButton!
     
     // MARK: Lifecycle
-    func setUpdateState(task: Task!){
+    func setUpdateState(_ task: Task!){
         self.task = task
     }
     
     // MARK: View Lifecycle
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         categories = CategoryPersistencyManager.sharedInstance.getCategories()
         
@@ -40,11 +40,11 @@ class AddNewTaskViewController: UIViewController, UIPickerViewDataSource, UIPick
             title = "Update Task"
             
             taskName.text = _task.name
-            taskDeadline.setDate(_task.getDueDate(), animated: false)
+            taskDeadline.setDate(_task.getDueDate() as Date, animated: false)
             
             var enabledNotif = false
-            if(!NSUserDefaults.standardUserDefaults().boolForKey("notifications") || _task.is_done){
-                taskEnabledNotifications.enabled = false
+            if(!UserDefaults.standard.bool(forKey: "notifications") || _task.is_done){
+                taskEnabledNotifications.isEnabled = false
             } else {
                 if(_task.notification_uuid != ""){
                     enabledNotif = true
@@ -52,18 +52,18 @@ class AddNewTaskViewController: UIViewController, UIPickerViewDataSource, UIPick
             }
             taskEnabledNotifications.setOn(enabledNotif, animated: false)
             
-            for (i,c) in categories.enumerate(){
+            for (i,c) in categories.enumerated(){
                 if(c === _task.category){
                     selectedCategoryIdx = i
                 }
             }
             
             if(_task.is_done){
-                taskIsFinishedButton.setTitle("Task is not Done", forState: .Normal)
+                taskIsFinishedButton.setTitle("Task is not Done", for: UIControlState())
             }
             
         } else {
-            taskIsFinishedButton.hidden = true
+            taskIsFinishedButton.isHidden = true
         }
         
         //select color & update background
@@ -72,7 +72,7 @@ class AddNewTaskViewController: UIViewController, UIPickerViewDataSource, UIPick
 
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
     }
     
@@ -87,30 +87,30 @@ class AddNewTaskViewController: UIViewController, UIPickerViewDataSource, UIPick
     }
     
     //MARK: pickerView
-    func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
     
-    func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         return categories.count
     }
     
-    func pickerView(pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
+    func pickerView(_ pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
         
         let cat = categories[row]
-        let color = UIColor.blackColor()
+        let color = UIColor.black
         
         return NSAttributedString(string: cat.name!, attributes: [NSForegroundColorAttributeName:color])
     }
     
-    func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int){
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int){
         let cat = categories[row]
         let color = Array(Common.COLORS.keys)[cat.getColorID()]
         self.view.backgroundColor = color
     }
     
     //MARK: Task Related Methods
-    func saveTask(name: String, dueDate: NSDate, notification: Bool, category: Category) {
+    func saveTask(_ name: String, dueDate: Date, notification: Bool, category: Category) {
         var _task = task
         
         if _task != nil {
@@ -120,7 +120,7 @@ class AddNewTaskViewController: UIViewController, UIPickerViewDataSource, UIPick
         }
         
         //notification
-        if(NSUserDefaults.standardUserDefaults().boolForKey("notifications")){
+        if(UserDefaults.standard.bool(forKey: "notifications")){
             if task != nil {
                 NotificationsController.removeExistingNotification(_task!)
             }
@@ -131,25 +131,25 @@ class AddNewTaskViewController: UIViewController, UIPickerViewDataSource, UIPick
     }
     
     // MARK: User Interaction
-    @IBAction func saveTask(sender: AnyObject) {
+    @IBAction func saveTask(_ sender: AnyObject) {
         if (taskName.text!.isEmpty) {
-            let alertController = UIAlertController(title: "No task name", message: "Please enter a task name", preferredStyle: .Alert)
-            let ok = UIAlertAction(title: "OK", style: .Default, handler: { (action) -> Void in
+            let alertController = UIAlertController(title: "No task name", message: "Please enter a task name", preferredStyle: .alert)
+            let ok = UIAlertAction(title: "OK", style: .default, handler: { (action) -> Void in
             })
             alertController.addAction(ok)
-            self.presentViewController(alertController, animated: true, completion:nil)
+            self.present(alertController, animated: true, completion:nil)
             return
         }
         
-        saveTask(taskName.text!, dueDate: taskDeadline.date, notification: taskEnabledNotifications.on, category: categories[taskCategory.selectedRowInComponent(0)])
+        saveTask(taskName.text!, dueDate: taskDeadline.date, notification: taskEnabledNotifications.isOn, category: categories[taskCategory.selectedRow(inComponent: 0)])
         
-        self.navigationController?.popToRootViewControllerAnimated(true) // return to list view
+        _ = self.navigationController?.popToRootViewController(animated: true) // return to list view
     }
     
-    @IBAction func taskIsFinished(sender: AnyObject) {
+    @IBAction func taskIsFinished(_ sender: AnyObject) {
         let isFinished = (task!.is_done) ? false : true
         
         TaskPersistencyManager.sharedInstance.updateTask(task!, is_done: isFinished)
-        self.navigationController?.popToRootViewControllerAnimated(true)
+        _ = self.navigationController?.popToRootViewController(animated: true)
     }
 }

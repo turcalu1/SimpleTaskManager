@@ -11,13 +11,13 @@ import CoreData
 
 
 class Task: NSManagedObject {
-    func removeTimeFromDate(date: NSDate) -> NSDate{
-        return NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!.startOfDayForDate(date)
+    func removeTimeFromDate(_ date: Date) -> Date{
+        return Calendar(identifier: Calendar.Identifier.gregorian).startOfDay(for: date)
     }
-    func setDueDate(date: NSDate){
+    func setDueDate(_ date: Date){
         self.due = removeTimeFromDate(date).timeIntervalSince1970
     }
-    func getDueDate() -> NSDate{
-        return NSDate(timeIntervalSince1970: due)
+    func getDueDate() -> Date{
+        return Date(timeIntervalSince1970: due)
     }
 }

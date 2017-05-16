@@ -9,7 +9,7 @@
 import UIKit
 
 class SettingsViewController: UITableViewController {
-    let standardUserDefaults = NSUserDefaults.standardUserDefaults()
+    let standardUserDefaults = UserDefaults.standard
     
     @IBOutlet weak var notificationsSwitch: UISwitch!
     @IBOutlet weak var tasksOrderSegmentedControl: UISegmentedControl!
@@ -19,8 +19,8 @@ class SettingsViewController: UITableViewController {
         super.viewDidLoad()
 
         // set current values
-        notificationsSwitch.setOn(standardUserDefaults.boolForKey("notifications"), animated: false)
-        let orderByDate = standardUserDefaults.boolForKey("orderTasksByDate")
+        notificationsSwitch.setOn(standardUserDefaults.bool(forKey: "notifications"), animated: false)
+        let orderByDate = standardUserDefaults.bool(forKey: "orderTasksByDate")
         if(orderByDate){
             tasksOrderSegmentedControl.selectedSegmentIndex = 0 //orderByDate
         } else {
@@ -33,19 +33,19 @@ class SettingsViewController: UITableViewController {
     }
     
     // MARK: User Interaction
-    @IBAction func notificationsSettingChanged(sender: AnyObject) {
-        if(notificationsSwitch.on){
-            let notificationSettings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: nil)
-            UIApplication.sharedApplication().registerUserNotificationSettings(notificationSettings)
+    @IBAction func notificationsSettingChanged(_ sender: AnyObject) {
+        if(notificationsSwitch.isOn){
+            let notificationSettings = UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: nil)
+            UIApplication.shared.registerUserNotificationSettings(notificationSettings)
         } else {
             NotificationsController.removeAllNotifications()
         }
         
-        standardUserDefaults.setBool(notificationsSwitch.on, forKey: "notifications")
+        standardUserDefaults.set(notificationsSwitch.isOn, forKey: "notifications")
     }
     
-    @IBAction func tasksOrderChanged(sender: AnyObject) {
+    @IBAction func tasksOrderChanged(_ sender: AnyObject) {
         let orderByDate = tasksOrderSegmentedControl.selectedSegmentIndex == 0 //segment 0 == date
-        standardUserDefaults.setBool(orderByDate, forKey: "orderTasksByDate")
+        standardUserDefaults.set(orderByDate, forKey: "orderTasksByDate")
     }
 }

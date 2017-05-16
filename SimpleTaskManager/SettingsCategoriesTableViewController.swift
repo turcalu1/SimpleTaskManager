@@ -23,7 +23,7 @@ class SettingsCategoriesTableViewController: UITableViewController {
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         categories = CategoryPersistencyManager.sharedInstance.getCategories()
         tableView.reloadData()
@@ -35,18 +35,18 @@ class SettingsCategoriesTableViewController: UITableViewController {
     }
 
     // MARK: - Table view
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
         return 1
     }
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         return categories.count
     }
 
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
 
         let cat = categories[indexPath.row]
 
@@ -54,15 +54,15 @@ class SettingsCategoriesTableViewController: UITableViewController {
         
         cell.backgroundColor = Array(Common.COLORS.keys)[(cat.getColorID())]
         
-        if cell.backgroundColor === UIColor.blackColor() {
-            cell.textLabel?.textColor = UIColor.whiteColor()
+        if cell.backgroundColor === UIColor.black {
+            cell.textLabel?.textColor = UIColor.white
         }
 
         return cell
     }
     
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        let settingsAddCategoryViewControllerObj = self.storyboard?.instantiateViewControllerWithIdentifier("AddCategory") as! SettingsAddCategoryViewController
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let settingsAddCategoryViewControllerObj = self.storyboard?.instantiateViewController(withIdentifier: "AddCategory") as! SettingsAddCategoryViewController
         settingsAddCategoryViewControllerObj.setUpdateState(categories[indexPath.row])
         self.navigationController?.pushViewController(settingsAddCategoryViewControllerObj, animated: true)
     }
